@@ -1,0 +1,260 @@
+USE h_accounting;
+
+DROP PROCEDURE IF EXISTS lmcfadden_balancesheet_sp;
+
+DELIMITER $$
+CREATE PROCEDURE lmcfadden_balancesheet_sp(varCalendarYear1 SMALLINT, varCalendarYear2 SMALLINT)
+BEGIN
+
+DECLARE varCurrentAssets1 DOUBLE DEFAULT 0 ;
+DECLARE varCurrentAssets2 DOUBLE DEFAULT 0 ; 
+DECLARE varFixedAssets1 DOUBLE DEFAULT 0 ;
+DECLARE varFixedAssets2 DOUBLE DEFAULT 0 ;
+DECLARE varDeferredAssets1 DOUBLE DEFAULT 0;
+DECLARE varDeferredAssets2 DOUBLE DEFAULT 0;  
+DECLARE varTotalAssets1 DOUBLE DEFAULT 0;
+DECLARE varTotalAssets2 DOUBLE DEFAULT 0;
+DECLARE varCurrentLiabilities1 DOUBLE DEFAULT 0;
+DECLARE varCurrentLiabilities2 DOUBLE DEFAULT 0;
+DECLARE varLongTermLiabilities1 DOUBLE DEFAULT 0 ;
+DECLARE varLongTermLiabilities2 DOUBLE DEFAULT 0 ; 
+DECLARE varDeferredLiabilities1 DOUBLE DEFAULT 0 ;
+DECLARE varDeferredLiabilities2 DOUBLE DEFAULT 0 ;
+DECLARE varTotalLiabilities1 DOUBLE DEFAULT 0;
+DECLARE varTotalLiabilities2 DOUBLE DEFAULT 0;  
+DECLARE varEquity1 DOUBLE DEFAULT 0;
+DECLARE varEquity2 DOUBLE DEFAULT 0;
+DECLARE varTotalEquity1 DOUBLE DEFAULT 0;
+DECLARE varTotalEquity2 DOUBLE DEFAULT 0;
+DECLARE varTotalLiabilitiesAndEquity1 DOUBLE DEFAULT 0;
+DECLARE varTotalLiabilitiesAndEquity2 DOUBLE DEFAULT 0;
+
+SELECT IFNULL(SUM(debit)-SUM(credit),0) INTO varCurrentAssets1
+FROM statement_section AS ss
+INNER JOIN account AS acc ON acc.balance_sheet_section_id = ss.statement_section_id 
+INNER JOIN journal_entry_line_item AS jel ON acc.account_id = jel.account_id
+INNER JOIN journal_entry AS je ON je.journal_entry_id = jel.journal_entry_id
+WHERE is_balance_sheet_section = 1
+AND statement_section_order = 1
+
+AND YEAR(je.entry_date) = varCalendarYear1;
+
+SELECT IFNULL(SUM(debit)-SUM(credit),0) INTO varCurrentAssets2
+FROM statement_section AS ss
+INNER JOIN account AS acc ON acc.balance_sheet_section_id = ss.statement_section_id 
+INNER JOIN journal_entry_line_item AS jel ON acc.account_id = jel.account_id
+INNER JOIN journal_entry AS je ON je.journal_entry_id = jel.journal_entry_id
+WHERE is_balance_sheet_section = 1
+AND statement_section_order = 1
+
+AND YEAR(je.entry_date) = varCalendarYear2;
+
+SELECT IFNULL(SUM(debit)-SUM(credit),0) INTO varFixedAssets1
+FROM statement_section AS ss
+INNER JOIN account AS acc ON acc.balance_sheet_section_id = ss.statement_section_id 
+INNER JOIN journal_entry_line_item AS jel ON acc.account_id = jel.account_id
+INNER JOIN journal_entry AS je ON je.journal_entry_id = jel.journal_entry_id
+WHERE is_balance_sheet_section = 1
+AND statement_section_order = 2
+
+AND YEAR(je.entry_date) = varCalendarYear1;
+
+SELECT IFNULL(SUM(debit)-SUM(credit),0) INTO varFixedAssets2
+FROM statement_section AS ss
+INNER JOIN account AS acc ON acc.balance_sheet_section_id = ss.statement_section_id 
+INNER JOIN journal_entry_line_item AS jel ON acc.account_id = jel.account_id
+INNER JOIN journal_entry AS je ON je.journal_entry_id = jel.journal_entry_id
+WHERE is_balance_sheet_section = 1
+AND statement_section_order = 2
+
+AND YEAR(je.entry_date) = varCalendarYear2;
+
+SELECT IFNULL(SUM(debit)-SUM(credit),0) INTO varDeferredAssets1
+FROM statement_section AS ss
+INNER JOIN account AS acc ON acc.balance_sheet_section_id = ss.statement_section_id 
+INNER JOIN journal_entry_line_item AS jel ON acc.account_id = jel.account_id
+INNER JOIN journal_entry AS je ON je.journal_entry_id = jel.journal_entry_id
+WHERE is_balance_sheet_section = 1
+AND statement_section_order = 3
+
+AND YEAR(je.entry_date) = varCalendarYear1;
+
+SELECT IFNULL(SUM(debit)-SUM(credit),0) INTO varDeferredAssets2
+FROM statement_section AS ss
+INNER JOIN account AS acc ON acc.balance_sheet_section_id = ss.statement_section_id 
+INNER JOIN journal_entry_line_item AS jel ON acc.account_id = jel.account_id
+INNER JOIN journal_entry AS je ON je.journal_entry_id = jel.journal_entry_id
+WHERE is_balance_sheet_section = 1
+AND statement_section_order = 3
+
+AND YEAR(je.entry_date) = varCalendarYear2;
+
+SELECT IFNULL(SUM(credit)-SUM(debit),0) INTO varCurrentLiabilities1
+FROM statement_section AS ss
+INNER JOIN account AS acc ON acc.balance_sheet_section_id = ss.statement_section_id 
+INNER JOIN journal_entry_line_item AS jel ON acc.account_id = jel.account_id
+INNER JOIN journal_entry AS je ON je.journal_entry_id = jel.journal_entry_id
+WHERE is_balance_sheet_section = 1
+AND statement_section_order = 4
+
+AND YEAR(je.entry_date) = varCalendarYear1;
+
+SELECT IFNULL(SUM(credit)-SUM(debit),0) INTO varCurrentLiabilities2
+FROM statement_section AS ss
+INNER JOIN account AS acc ON acc.balance_sheet_section_id = ss.statement_section_id 
+INNER JOIN journal_entry_line_item AS jel ON acc.account_id = jel.account_id
+INNER JOIN journal_entry AS je ON je.journal_entry_id = jel.journal_entry_id
+WHERE is_balance_sheet_section = 1
+AND statement_section_order = 4
+
+AND YEAR(je.entry_date) = varCalendarYear2;
+
+SELECT IFNULL(SUM(credit)-SUM(debit),0) INTO varLongTermLiabilities1
+FROM statement_section AS ss
+INNER JOIN account AS acc ON acc.balance_sheet_section_id = ss.statement_section_id 
+INNER JOIN journal_entry_line_item AS jel ON acc.account_id = jel.account_id
+INNER JOIN journal_entry AS je ON je.journal_entry_id = jel.journal_entry_id
+WHERE is_balance_sheet_section = 1
+AND statement_section_order = 5
+
+AND YEAR(je.entry_date) = varCalendarYear1;
+
+SELECT IFNULL(SUM(credit)-SUM(debit),0) INTO varLongTermLiabilities2
+FROM statement_section AS ss
+INNER JOIN account AS acc ON acc.balance_sheet_section_id = ss.statement_section_id 
+INNER JOIN journal_entry_line_item AS jel ON acc.account_id = jel.account_id
+INNER JOIN journal_entry AS je ON je.journal_entry_id = jel.journal_entry_id
+WHERE is_balance_sheet_section = 1
+AND statement_section_order = 5
+
+AND YEAR(je.entry_date) = varCalendarYear2;
+
+SELECT IFNULL(SUM(credit)-SUM(debit),0) INTO varDeferredLiabilities1
+FROM statement_section AS ss
+INNER JOIN account AS acc ON acc.balance_sheet_section_id = ss.statement_section_id 
+INNER JOIN journal_entry_line_item AS jel ON acc.account_id = jel.account_id
+INNER JOIN journal_entry AS je ON je.journal_entry_id = jel.journal_entry_id
+WHERE is_balance_sheet_section = 1
+AND statement_section_order = 6
+
+AND YEAR(je.entry_date) = varCalendarYear1;
+
+SELECT IFNULL(SUM(credit)-SUM(debit),0) INTO varDeferredLiabilities2
+FROM statement_section AS ss
+INNER JOIN account AS acc ON acc.balance_sheet_section_id = ss.statement_section_id 
+INNER JOIN journal_entry_line_item AS jel ON acc.account_id = jel.account_id
+INNER JOIN journal_entry AS je ON je.journal_entry_id = jel.journal_entry_id
+WHERE is_balance_sheet_section = 1
+AND statement_section_order = 6
+
+AND YEAR(je.entry_date) = varCalendarYear2;
+
+SELECT SUM(COALESCE(jel.credit,0) - COALESCE(jel.debit,0)) INTO varEquity1
+FROM statement_section AS ss
+INNER JOIN account AS acc ON acc.balance_sheet_section_id = ss.statement_section_id 
+INNER JOIN journal_entry_line_item AS jel ON acc.account_id = jel.account_id
+INNER JOIN journal_entry AS je ON je.journal_entry_id = jel.journal_entry_id
+WHERE is_balance_sheet_section = 1
+AND statement_section_order = 7
+
+AND YEAR(je.entry_date) = varCalendarYear1;
+
+SELECT SUM(COALESCE(jel.credit,0) - COALESCE(jel.debit,0)) INTO varEquity2
+FROM statement_section AS ss
+INNER JOIN account AS acc ON acc.balance_sheet_section_id = ss.statement_section_id 
+INNER JOIN journal_entry_line_item AS jel ON acc.account_id = jel.account_id
+INNER JOIN journal_entry AS je ON je.journal_entry_id = jel.journal_entry_id
+WHERE is_balance_sheet_section = 1
+AND statement_section_order = 7
+
+AND YEAR(je.entry_date) = varCalendarYear2
+;
+
+SELECT varCurrentAssets1 + varFixedAssets1 + varDeferredAssets1 INTO varTotalAssets1;
+
+SELECT varCurrentAssets2 + varFixedAssets2 + varDeferredAssets2 INTO varTotalAssets2;
+
+SELECT varCurrentLiabilities1 + varLongTermLiabilities1 + varDeferredLiabilities1 INTO varTotalLiabilities1;
+
+SELECT varCurrentLiabilities2 + varLongTermLiabilities2 + varDeferredLiabilities2 INTO varTotalLiabilities2;
+
+SELECT varEquity1 INTO varTotalEquity1;
+
+SELECT varEquity2 INTO varTotalEquity2;
+
+SELECT varTotalLiabilities1 + varTotalEquity1 INTO varTotalLiabilitiesAndEquity1;
+
+SELECT varTotalLiabilities2 + varTotalEquity2 INTO varTotalLiabilitiesAndEquity2;
+
+DROP TABLE IF EXISTS lmcfadden_tmp;
+
+CREATE TABLE lmcfadden_tmp
+(balance_sheet_line_number INT, 
+label VARCHAR (50), 
+year_1 VARCHAR (20), 
+year_2 VARCHAR (20), 
+prcnt_change VARCHAR (5)
+);
+
+INSERT INTO lmcfadden_tmp
+(balance_sheet_line_number, label, year_1, year_2, prcnt_change)
+VALUES (1, 'CURRENT ASSETS (k)', FORMAT(varCurrentAssets1/1000,2), FORMAT(varCurrentAssets2/1000,2),(varCurrentAssets2 - varCurrentAssets1) / varCurrentAssets1 *100 );
+
+INSERT INTO lmcfadden_tmp
+(balance_sheet_line_number, label, year_1, year_2, prcnt_change)
+VALUES (2, 'FIXED ASSETS (k)', FORMAT(varFixedAssets1/1000,2), FORMAT(varFixedAssets2/1000,2), '');
+
+INSERT INTO lmcfadden_tmp
+(balance_sheet_line_number, label, year_1, year_2, prcnt_change)
+VALUES (3, 'DEFERRED ASSETS (k)', FORMAT(varDeferredAssets1/1000,2), FORMAT(varDeferredAssets2/1000,2), '');
+
+INSERT INTO lmcfadden_tmp
+(balance_sheet_line_number, label, year_1, year_2, prcnt_change)
+VALUES (4, 'TOTAL ASSETS (k)', FORMAT(varTotalAssets1/1000,2), FORMAT(varTotalAssets2/1000,2), (varTotalAssets2 -varTotalAssets1) / varTotalAssets2 *100 );
+
+INSERT INTO lmcfadden_tmp
+(balance_sheet_line_number, label, year_1, year_2, prcnt_change)
+VALUES (5, '', '', '', '');
+
+INSERT INTO lmcfadden_tmp
+(balance_sheet_line_number, label, year_1, year_2, prcnt_change)
+VALUES (6, 'CURRENT LIABILITIES (k)', FORMAT(varCurrentLiabilities1/1000, 2), FORMAT(varCurrentLiabilities2/1000, 2), ((varCurrentLiabilities2 - varCurrentLiabilities1) * -1) / (varCurrentLiabilities1 *-1) * 100);
+
+INSERT INTO lmcfadden_tmp
+(balance_sheet_line_number, label, year_1, year_2, prcnt_change)
+VALUES (7, 'LONG-TERM LIABILITIES (k)', FORMAT(varLongTermLiabilities1/1000,2), FORMAT(varLongTermLiabilities2/1000,2), '');
+
+INSERT INTO lmcfadden_tmp
+(balance_sheet_line_number, label, year_1, year_2, prcnt_change)
+VALUES (8, 'DEFERRED LIABILITIES (k)', FORMAT(varDeferredLiabilities1/1000,2), FORMAT(varDeferredLiabilities2/1000,2), '');
+
+INSERT INTO lmcfadden_tmp
+(balance_sheet_line_number, label, year_1, year_2, prcnt_change)
+VALUES (9, 'TOTAL LIABILITIES (k)', FORMAT(varTotalLiabilities1/1000,2), FORMAT(varTotalLiabilities2/1000,2), (varTotalLiabilities2 - varTotalLiabilities1) / varTotalLiabilities1 *100);
+
+INSERT INTO lmcfadden_tmp
+(balance_sheet_line_number, label, year_1, year_2, prcnt_change)
+VALUES (10, '', '', '', '');
+
+INSERT INTO lmcfadden_tmp
+(balance_sheet_line_number, label, year_1, year_2, prcnt_change)
+VALUES (11, 'EQUITY (k)', FORMAT(varEquity1/1000,2), FORMAT(varEquity2/1000,2), (varEquity2 - varEquity1) / varEquity1 * 100 );
+
+INSERT INTO lmcfadden_tmp
+(balance_sheet_line_number, label, year_1, year_2, prcnt_change)
+VALUES (12, 'TOTAL EQUITY (k)', FORMAT(varTotalEquity1/1000,2), FORMAT(varTotalEquity2/1000,2), (varTotalEquity2 - varTotalEquity1) / varTotalEquity1 *100 );
+
+INSERT INTO lmcfadden_tmp
+(balance_sheet_line_number, label, year_1, year_2, prcnt_change)
+VALUES (13, '', '', '', '');
+
+INSERT INTO lmcfadden_tmp
+(balance_sheet_line_number, label, year_1, year_2, prcnt_change)
+VALUES (14, 'TOTAL LIABILITIES & EQUITY (k)', FORMAT(varTotalLiabilitiesAndEquity1/1000,2), FORMAT(varTotalLiabilitiesAndEquity2/1000,2), (varTotalLiabilitiesAndEquity2 - varTotalLiabilitiesAndEquity1) / (varTotalLiabilitiesAndEquity1 * -1) *100 );
+
+END$$
+DELIMITER ;
+
+CALL lmcfadden_balancesheet_sp(2017,2018) ; 
+
+SELECT label AS 'Section', year_1 AS 'Year 1' , year_2  AS 'Year 2', prcnt_change AS 'Percent Change' FROM lmcfadden_tmp;
